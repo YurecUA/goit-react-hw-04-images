@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import styles from './Modal.module.css';
 import PropTypes from 'prop-types';
 
+
 const modalRoot = document.querySelector('#modalRoot');
 
 export default class Modal extends Component {
@@ -16,13 +17,17 @@ export default class Modal extends Component {
 
   handleKeyDown = e => {
     if (e.code === 'Escape') {
-      return this.props.onClose();
+      return this.props.onClose('');
     }
   };
-
+  handleClick = (event) => {
+    if (event.target === event.currentTarget) {
+      return this.props.onClose('');
+    }
+}
   render() {
     return createPortal(
-      <div className={styles.overlay}>
+      <div className={styles.overlay} onClick={this.handleClick}>
         <div className={styles.modal}>
           <img src={this.props.pic} alt="" />
         </div>
