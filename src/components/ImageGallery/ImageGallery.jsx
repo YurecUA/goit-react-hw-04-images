@@ -1,56 +1,24 @@
 import React, { Component } from 'react';
 import styles from './ImageGallery.module.css';
 import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
-import Modal from 'components/Modal/Modal';
-import { nanoid } from 'nanoid';
 import PropTypes from 'prop-types';
 
-export default class ImageGallery extends Component {
-  state = {
-    showModal: false,
-    bigPic: null,
-  };
-
-  componentDidMount() {
-    document.addEventListener('click', e => {
-      if (e.target.nodeName !== 'IMG') {
-        this.setState({ showModal: false });
-        return;
-      } else {
-        let picture = this.props.images.filter(obj => {
-          return obj.id === parseInt(e.target.alt);
-        });
-        this.setState({ bigPic: picture.largeImageURL });
-      }
-    });
-  }
-
-  toggleModal = () => {
-    this.setState(({ showModal }) => ({ showModal: !showModal }));
-  };
-
-  render() {
-    const { showModal, bigPic } = this.state;
-    return (
-      <>
-        <ul className={styles.gallery} onClick={this.toggleModal}>
-          {this.props.images.map(img => {
+export const ImageGallery = ({ images, setLargeImgURL }) => {
+  return <ul className={styles.gallery} >
+          {images.map(img => {
             return (
               <ImageGalleryItem
-                key={nanoid()}
+                key={img.tags}
                 smallImgURL={img.webformatURL}
-                id={img.id}
+                largeImgURL={img.largeImageURL}
+                setLargeImgURL={setLargeImgURL}
               />
             );
           })}
         </ul>
-        {showModal && bigPic && (
-          <Modal onClose={this.toggleModal} pic={bigPic} />
-        )}
-      </>
-    );
-  }
 }
+
+
 
 ImageGallery.propTypes = {
   images: PropTypes.arrayOf(
