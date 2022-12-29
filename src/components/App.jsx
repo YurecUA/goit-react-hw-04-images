@@ -2,9 +2,11 @@ import React, { Component } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Searchbar from './Searchbar/Searchbar';
-import ImageGallery from './ImageGallery/ImageGallery';
+import { ImageGallery } from './ImageGallery/ImageGallery';
 import Loader from './Loader/Loader';
 import Button from './Button/Button';
+import Modal from './Modal/Modal';
+
 
 export default class App extends Component {
   state = {
@@ -16,6 +18,7 @@ export default class App extends Component {
     page: 1,
     query: '',
     totalHits: null,
+    largeImgURL: '',
   };
 
   fetchImg = () => {
@@ -32,14 +35,9 @@ export default class App extends Component {
         if (!pictures.total) {
           toast.error('Did find anything, mate');
         }
-        const selectedProperties = pictures.hits.map(
-          ({ id, largeImageURL, webformatURL }) => {
-            return { id, largeImageURL, webformatURL };
-          }
-        );
         this.setState(prevState => {
           return {
-            pictures: [...prevState.pictures, ...selectedProperties],
+            pictures: [...prevState.pictures, ...pictures.hits],
             status: 'resolved',
             totalHits: pictures.total,
           };
@@ -49,21 +47,21 @@ export default class App extends Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.query !== prevState.query) {
-      this.setState({ status: 'pending', pictures: [], page: 1 });
+    if (this.state.query !== prevState.query || prevState.page !== this.state.page) {
+      this.setState({ status: 'pending'});
       this.fetchImg();
     }
-    if (
-      this.state.query === prevState.query &&
-      this.state.page !== prevState.page
-    ) {
-      this.setState({ status: 'pending' });
-      this.fetchImg();
-    }
+    // if (
+    //   this.state.query === prevState.query &&
+    //   this.state.page !== prevState.page
+    // ) {
+    //   this.setState({ status: 'pending' });
+    //   this.fetchImg();
+    // }
   }
 
   processSubmit = query => {
-    this.setState({ query });
+    this.setState({ query, page: 1, pictures: [] });
   };
 
   handleLoadMore = () => {
@@ -72,16 +70,21 @@ export default class App extends Component {
     });
   };
 
+  setLargeImgURL = (largeImgURL) => {
+  this.setState({largeImgURL})
+  }
+
   render() {
     const { pictures, status, totalHits } = this.state;
     return (
       <>
         <Searchbar onSubmit={this.processSubmit} />
-        {pictures.length && <ImageGallery images={pictures} />}
+        {pictures.length > 0 && <ImageGallery images={pictures} setLargeImgURL = {this.setLargeImgURL} />}
         {totalHits > pictures.length && (
           <Button onClick={this.handleLoadMore} />
         )}
         {status === 'pending' && <Loader />}
+        {this.state.largeImgURL && <Modal onClose={this.setLargeImgURL} pic={this.state.largeImgURL} />}
         <ToastContainer autoClose={5000} />
       </>
     );
