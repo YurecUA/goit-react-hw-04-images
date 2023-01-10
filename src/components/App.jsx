@@ -72,6 +72,7 @@ export const App = () => {
         )}
         {status === 'pending' && <Loader />}
         {largeImgURL && <Modal onClose={setImageModalURL} pic={largeImgURL} />}
+        {error && <p>{ error }</p>}
         <ToastContainer autoClose={5000} />
       </>
     );
